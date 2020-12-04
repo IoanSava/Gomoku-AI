@@ -10,9 +10,9 @@ class GameGUI:
 
         self.icon = pygame.image.load('data/images/gomoku-logo.png').convert()
         pygame.display.set_icon(self.icon)
-        self.og_background = pygame.image.load(
-            'data/images/grunge-background-wallpaper-texture-concrete-concept.jpg').convert()
-        self.background = None
+        # self.og_background = pygame.image.load(
+        #     'data/images/grunge-background-wallpaper-texture-concrete-concept.jpg').convert()
+        # self.background = None
 
         self.new_game_button = None
         self.options_button = None
@@ -41,7 +41,7 @@ class GameGUI:
     def add_ui(self):
         self.manager.set_window_resolution(self.resolution)
         self.manager.clear_and_reset()
-        self.background = pygame.transform.scale(self.og_background, (self.resolution[0], self.resolution[1]))
+        # self.background = pygame.transform.scale(self.og_background, (self.resolution[0], self.resolution[1]))
 
         self.new_game_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect(10, 15, 100, 30),
@@ -56,11 +56,16 @@ class GameGUI:
             manager=self.manager)
 
         self.confirm_changes_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(400, 195, 40, 40),
-                                                                   text='O', manager=self.manager,
+                                                                   text='\u2713', manager=self.manager,
                                                                    container=self.options_panel)
 
-        self.cancel_changes_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(445, 195, 40, 40), text='X',
-                                                                  manager=self.manager, container=self.options_panel)
+        # '\u2714'
+
+        self.cancel_changes_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(445, 195, 40, 40),
+                                                                  text='X', manager=self.manager,
+                                                                  container=self.options_panel)
+
+        # '\u2718'
 
         self.black_player_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(55, 50, 80, 20), text='Black',
                                                               manager=self.manager, container=self.options_panel)

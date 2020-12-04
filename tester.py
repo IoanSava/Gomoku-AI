@@ -12,7 +12,7 @@ if __name__ == '__main__':
     running = True
     clock = pygame.time.Clock()
     while running:
-        game_gui.window.blit(game_gui.background, (0, 0))
+        # game_gui.window.blit(game_gui.background, (0, 0))
         time_delta = clock.tick(60) / 1000.0
 
         for event in pygame.event.get():
@@ -33,7 +33,7 @@ if __name__ == '__main__':
                                game_gui.board_size_changer_selected_option, game_gui.hints_enabled])
                         game_gui.close_options_panel()
                     if event.ui_element == game_gui.cancel_changes_button:
-                        print('X')
+                        print('\u2718')
                         game_gui.cancel_changes()
                         game_gui.close_options_panel()
                     if event.ui_element == game_gui.hints_button:
