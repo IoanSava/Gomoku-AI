@@ -5,63 +5,63 @@ MARGIN = 1
 PADDING = 20
 DOT = 4
 
+# rgb colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (133, 42, 44)
 TILE_COLOR = (208, 176, 144)
 GREEN = (26, 81, 79)
-PLAYER = False
 
 
-def player_turn(color):
-    if color == BLACK:
-        return "BLACK turn"
-    else:
-        return "WHITE turn"
+def get_game_info(info):
+    if info['winner'] == 'C':
+        return 'You lost'
+    elif info['winner'] == 'P':
+        return 'You won'
+
+    if info['playing']:
+        if info['turn'] < 4:
+            if info['turn'] == 1:
+                return 'Place 2 black stones and 1 white stone'
+            elif info['turn'] == 2:
+                return 'Choose your stone color or put two more stones'
+            else:
+                return 'Choose your color'
+
+        if info['stone'] in ['B', 'W']:
+            text = 'Your stone: '
+            text += 'BLACK' if info['stone'] == 'B' else 'WHITE'
+            return text
 
 
-class Gomoku:
+class Board:
     def __init__(self, display_surf, board_size):
-        self.initialize(display_surf, board_size)
-
-    def initialize(self, display_surf, board_size):
         self.BOARD_SIZE = board_size
         self.BOARD = (WIDTH + MARGIN) * self.BOARD_SIZE + MARGIN
         self.GAME_WIDTH = self.BOARD + PADDING * 2
         self.GAME_HEIGHT = self.GAME_WIDTH + 100
 
-        self.grid = [[0 for _ in range(self.BOARD_SIZE + 1)] for _ in range(self.BOARD_SIZE + 1)]
+        self.grid = [['-'] * (self.BOARD_SIZE + 1) for _ in range(0, self.BOARD_SIZE + 1)]
 
         self._display_surf = display_surf
 
-        self.playing = False
-        self._win = False
         self.last_position = [-1, -1]
 
-        self.OFFSET_WIDTH = self._display_surf.get_width() / self.BOARD * PADDING + \
-                            self._display_surf.get_width() / self.BOARD_SIZE * 2.4
-        self.OFFSET_HEIGHT = self._display_surf.get_height() / self.BOARD * PADDING + \
-                             self._display_surf.get_height() / self.BOARD_SIZE * 2
+        self.OFFSET_WIDTH = self._display_surf.get_width() / self.BOARD * PADDING + self._display_surf.get_width() / self.BOARD_SIZE * 2.4
+        self.OFFSET_HEIGHT = self._display_surf.get_height() / self.BOARD * PADDING + self._display_surf.get_height() / self.BOARD_SIZE * 2
 
-    def on_render(self):
-        self.render_gomoku_stone()
+    def on_render(self, info):
+        self.render_stone()
         self.render_last_position()
-        self.render_game_info()
-        self.render_button()
+        self.render_game_info(info)
+        self.render_button(info['playing'])
+        self.render_stones_in_order_to_choose_color(info)
 
-    def start(self):
-        self.playing = True
-        self.grid = [[0 for _ in range(self.BOARD_SIZE + 1)] for _ in range(self.BOARD_SIZE + 1)]
+    def reset(self):
+        self.grid = [['-'] * (self.BOARD_SIZE + 1) for _ in range(0, self.BOARD_SIZE + 1)]
         self.last_position = [-1, -1]
-        self._win = False
-
-    def surrender(self):
-        self.playing = False
-        self._win = True
 
     def draw_points(self):
-        # Five dots
-        # points = [(3, 3), , (9, 9), (3, 9), (9, 3), (15, 15), (3, 15), (15, 3), (9, 15), (15, 9)]
         points = [(int(self.BOARD_SIZE / 6), int(self.BOARD_SIZE / 6)),
                   (int(self.BOARD_SIZE / 2), int(self.BOARD_SIZE / 2)),
                   (int(self.BOARD_SIZE / 6), int(self.BOARD_SIZE / 2)),
@@ -79,7 +79,7 @@ class Gomoku:
                               DOT,
                               DOT), 0)
 
-    def gomoku_board_init(self):
+    def init(self):
         self._display_surf.fill(TILE_COLOR)
         # Draw background rect for game area
         pygame.draw.rect(self._display_surf, BLACK,
@@ -99,46 +99,38 @@ class Gomoku:
 
         self.draw_points()
 
-    def render_button(self):
-        color = GREEN if not self.playing else RED
-        info = "Start" if not self.playing else "Surrender"
+    def render_button(self, playing):
+        color = GREEN if not playing else RED
+        info = 'START' if not playing else 'SURRENDER'
 
         pygame.draw.rect(self._display_surf, color,
                          (self._display_surf.get_width() // 2 - 50, self._display_surf.get_height() - 110, 100, 30))
 
-        info_font = pygame.font.SysFont('Helvetica', 18)
+        info_font = pygame.font.SysFont('Helvetica', 15)
         text = info_font.render(info, True, WHITE)
         text_rect = text.get_rect()
         text_rect.centerx = self._display_surf.get_width() // 2
         text_rect.centery = self._display_surf.get_height() - 95
         self._display_surf.blit(text, text_rect)
 
-    def render_game_info(self):
-        # current player color
-        color = BLACK if not PLAYER else WHITE
-        center = (self._display_surf.get_width() // 2 - 60, self._display_surf.get_height() - 130)
-        radius = 12
-        pygame.draw.circle(self._display_surf, color, center, radius, 0)
-
-        info = "You Win" if self._win else player_turn(color)
+    def render_game_info(self, info_dict):
+        info = get_game_info(info_dict)
         info_font = pygame.font.SysFont('Helvetica', 25)
         text = info_font.render(info, True, BLACK)
         text_rect = text.get_rect()
-        text_rect.centerx = self._display_surf.get_rect().centerx + 20
-        text_rect.centery = center[1]
+        text_rect.centerx = self._display_surf.get_rect().centerx
+        text_rect.centery = self._display_surf.get_height() - 130
         self._display_surf.blit(text, text_rect)
 
-    def render_gomoku_stone(self):
+    def render_stone(self):
         for r in range(self.BOARD_SIZE + 1):
             for c in range(self.BOARD_SIZE + 1):
                 center = ((MARGIN + WIDTH) * c + MARGIN + self.OFFSET_WIDTH,
                           (MARGIN + WIDTH) * r + MARGIN + self.OFFSET_HEIGHT)
 
-                if self.grid[r][c] > 0:
-                    color = BLACK if self.grid[r][c] == 2 else WHITE
-                    pygame.draw.circle(self._display_surf, color,
-                                       center,
-                                       WIDTH // 2 - MARGIN, 0)
+                if self.grid[r][c] != '-':
+                    color = BLACK if self.grid[r][c] == 'B' else WHITE
+                    pygame.draw.circle(self._display_surf, color, center, WIDTH // 2 - MARGIN, 0)
 
     def render_last_position(self):
         if self.last_position[0] >= 0 and self.last_position[1] >= 0:
@@ -148,28 +140,38 @@ class Gomoku:
                               (MARGIN + WIDTH),
                               (MARGIN + WIDTH)), 1)
 
-    def check_win(self, position, player):
-        target = 1 if player else 2
-        if self.grid[position[0]][position[1]] != target:
-            return False
-        directions = [([0, 1], [0, -1]), ([1, 0], [-1, 0]), ([-1, 1], [1, -1]), ([1, 1], [-1, -1])]
-        for direction in directions:
-            continue_game = 0
-            for i in range(2):
-                p = position[:]
-                while 0 <= p[0] <= self.BOARD_SIZE and 0 <= p[1] <= self.BOARD_SIZE:
-                    if self.grid[p[0]][p[1]] == target:
-                        continue_game += 1
-                    else:
-                        break
-                    p[0] += direction[i][0]
-                    p[1] += direction[i][1]
-            if continue_game >= 6:
-                return True
-        return False
-
     def mouse_in_button(self, pos):
-        if self._display_surf.get_width() // 2 - 50 <= pos[0] <= self._display_surf.get_width() // 2 + 50 and \
-                self._display_surf.get_height() - 110 <= pos[1] <= self._display_surf.get_height() - 80:
-            return True
-        return False
+        return self._display_surf.get_width() // 2 - 50 <= pos[0] <= self._display_surf.get_width() // 2 + 50 and \
+               self._display_surf.get_height() - 110 <= pos[1] <= self._display_surf.get_height() - 80
+
+    def render_stones_in_order_to_choose_color(self, info):
+        if info['turn'] in [2, 3] and info['is_player_turn'] and info['total_stones'] != 4:
+            # white stone
+            center = (self._display_surf.get_width() // 2 - 30, self._display_surf.get_height() - 30)
+            radius = 15
+            pygame.draw.circle(self._display_surf, WHITE, center, radius, 0)
+
+            # black stone
+            center = (self._display_surf.get_width() // 2 + 30, self._display_surf.get_height() - 30)
+            pygame.draw.circle(self._display_surf, BLACK, center, radius, 0)
+        else:
+            # white stone
+            center = (self._display_surf.get_width() // 2 - 30, self._display_surf.get_height() - 30)
+            radius = 15
+            pygame.draw.circle(self._display_surf, TILE_COLOR, center, radius, 0)
+
+            # black stone
+            center = (self._display_surf.get_width() // 2 + 30, self._display_surf.get_height() - 30)
+            pygame.draw.circle(self._display_surf, TILE_COLOR, center, radius, 0)
+
+    def mouse_in_white(self, position):
+        center = (self._display_surf.get_width() // 2 - 30, self._display_surf.get_height() - 30)
+        radius = 15
+
+        return (position[0] - center[0]) ** 2 + (position[1] - center[1]) ** 2 < radius ** 2
+
+    def mouse_in_black(self, position):
+        center = (self._display_surf.get_width() // 2 + 30, self._display_surf.get_height() - 30)
+        radius = 15
+
+        return (position[0] - center[0]) ** 2 + (position[1] - center[1]) ** 2 < radius ** 2
