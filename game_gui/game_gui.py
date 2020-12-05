@@ -10,9 +10,6 @@ class GameGUI:
 
         self.icon = pygame.image.load('data/images/gomoku-logo.png').convert()
         pygame.display.set_icon(self.icon)
-        # self.og_background = pygame.image.load(
-        #     'data/images/grunge-background-wallpaper-texture-concrete-concept.jpg').convert()
-        # self.background = None
 
         self.new_game_button = None
         self.options_button = None

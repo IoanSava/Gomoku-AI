@@ -3,7 +3,6 @@ import pygame_gui
 from board import *
 from game_gui.game_gui import GameGUI
 
-
 if __name__ == "__main__":
 
     pygame.init()
@@ -29,13 +28,10 @@ if __name__ == "__main__":
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == game_gui.new_game_button:
-                        print('New Game')
                         gomoku.start()
                     if event.ui_element == game_gui.options_button:
-                        print('Options')
                         game_gui.open_options_panel()
                     if event.ui_element == game_gui.confirm_changes_button:
-                        print('New Game')
                         game_gui.confirm_changes()
                         print([game_gui.black_player_selected_option,
                                game_gui.white_player_selected_option,
@@ -43,7 +39,6 @@ if __name__ == "__main__":
                         game_gui.close_options_panel()
                         gomoku.initialize(screen, int(game_gui.board_size_changer_selected_option.split()[0]))
                     if event.ui_element == game_gui.cancel_changes_button:
-                        print('\u2718')
                         game_gui.cancel_changes()
                         game_gui.close_options_panel()
                     if event.ui_element == game_gui.hints_button:
@@ -68,7 +63,6 @@ if __name__ == "__main__":
                             PLAYER = not PLAYER
 
                     elif gomoku.playing:
-                        print(pos)
                         row = (pos[1] - int(gomoku.OFFSET_HEIGHT) + WIDTH // 2) // (WIDTH + MARGIN)
                         col = (pos[0] - int(gomoku.OFFSET_WIDTH) + WIDTH // 2) // (WIDTH + MARGIN)
 

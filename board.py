@@ -36,7 +36,7 @@ class Gomoku:
 
         self.playing = False
         self._win = False
-        self.lastPosition = [-1, -1]
+        self.last_position = [-1, -1]
 
         self.OFFSET_WIDTH = self._display_surf.get_width() / self.BOARD * PADDING + \
                             self._display_surf.get_width() / self.BOARD_SIZE * 2.4
@@ -52,7 +52,7 @@ class Gomoku:
     def start(self):
         self.playing = True
         self.grid = [[0 for _ in range(self.BOARD_SIZE + 1)] for _ in range(self.BOARD_SIZE + 1)]
-        self.lastPosition = [-1, -1]
+        self.last_position = [-1, -1]
         self._win = False
 
     def surrender(self):
@@ -141,10 +141,10 @@ class Gomoku:
                                        WIDTH // 2 - MARGIN, 0)
 
     def render_last_position(self):
-        if self.lastPosition[0] >= 0 and self.lastPosition[1] >= 0:
+        if self.last_position[0] >= 0 and self.last_position[1] >= 0:
             pygame.draw.rect(self._display_surf, RED,
-                             ((MARGIN + WIDTH) * self.lastPosition[1] + self.OFFSET_WIDTH - (MARGIN + WIDTH) // 2,
-                              (MARGIN + WIDTH) * self.lastPosition[0] + self.OFFSET_HEIGHT - (MARGIN + WIDTH) // 2,
+                             ((MARGIN + WIDTH) * self.last_position[1] + self.OFFSET_WIDTH - (MARGIN + WIDTH) // 2,
+                              (MARGIN + WIDTH) * self.last_position[0] + self.OFFSET_HEIGHT - (MARGIN + WIDTH) // 2,
                               (MARGIN + WIDTH),
                               (MARGIN + WIDTH)), 1)
 
