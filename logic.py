@@ -32,6 +32,7 @@ class Game:
     def __get_chain_length(self, position, direction, direction_operator):
         chain_length = 0
 
+        last_position = position
         current_position = tuple(map(direction_operator, position, direction))
         while not self.__is_position_outside_of_the_board(current_position):
             row, col = current_position
@@ -39,16 +40,17 @@ class Game:
             if current_stone == self.current_turn:
                 chain_length += 1
             else:
-                return chain_length
+                return chain_length, last_position
 
+            last_position = current_position
             current_position = tuple(map(direction_operator, current_position, direction))
 
-        return chain_length
+        return chain_length, last_position
 
     def __get_max_chain_length(self, position, direction):
         chain_length = 1
-        chain_length += self.__get_chain_length(position, direction, operator.add)
-        chain_length += self.__get_chain_length(position, direction, operator.sub)
+        chain_length += self.__get_chain_length(position, direction, operator.add)[0]
+        chain_length += self.__get_chain_length(position, direction, operator.sub)[0]
 
         return chain_length
 
@@ -56,6 +58,61 @@ class Game:
         for direction in DIRECTIONS:
             if self.__get_max_chain_length(position, direction) == 5:
                 return True
+
+        return False
+
+    def __check_if_exists_one_open_row_with_three_stones(self):
+        for i in range(self.board.BOARD_SIZE + 1):
+            for j in range(self.board.BOARD_SIZE + 1):
+                if self.board.grid[i][j] == self.current_turn:
+                    for direction in DIRECTIONS:
+                        if self.__get_max_chain_length((i, j), direction) == 3:
+                            position_1 = self.__get_chain_length((i, j), direction, operator.add)[1]
+                            position_1 = tuple(map(operator.add, position_1, direction))
+
+                            position_2 = self.__get_chain_length((i, j), direction, operator.sub)[1]
+                            position_2 = tuple(map(operator.sub, position_2, direction))
+
+                            if not self.__is_position_outside_of_the_board(position_1) and \
+                                    not self.__is_position_outside_of_the_board(position_2):
+                                tile1 = self.board.grid[position_1[0]][position_1[1]]
+                                tile2 = self.board.grid[position_2[0]][position_2[1]]
+                                if tile1 == '-' and tile2 == '-':
+                                    return True
+        return False
+
+    def __check_if_move_forms_two_open_rows_of_three_stones(self, position):
+        for direction in DIRECTIONS:
+            if self.__get_max_chain_length(position, direction) == 3:
+                position1 = self.__get_chain_length(position, direction, operator.add)[1]
+                position1 = tuple(map(operator.add, position1, direction))
+
+                position2 = self.__get_chain_length(position, direction, operator.sub)[1]
+                position2 = tuple(map(operator.sub, position2, direction))
+
+                if not self.__is_position_outside_of_the_board(position1) and \
+                        not self.__is_position_outside_of_the_board(position2):
+                    tile1 = self.board.grid[position1[0]][position1[1]]
+                    tile2 = self.board.grid[position2[0]][position2[1]]
+                    if tile1 == '-' and tile2 == '-':
+                        return self.__check_if_exists_one_open_row_with_three_stones()
+
+        return False
+
+    def __check_if_exists_one_row_with_four_stones(self):
+        for i in range(self.board.BOARD_SIZE + 1):
+            for j in range(self.board.BOARD_SIZE + 1):
+                if self.board.grid[i][j] == self.current_turn:
+                    for direction in DIRECTIONS:
+                        if self.__get_max_chain_length((i, j), direction) == 4:
+                            return True
+
+        return False
+
+    def __check_if_move_forms_two_rows_of_four_stones(self, position):
+        for direction in DIRECTIONS:
+            if self.__get_max_chain_length(position, direction) == 4:
+                return self.__check_if_exists_one_row_with_four_stones()
 
         return False
 
@@ -71,7 +128,8 @@ class Game:
     def __computer_move(self, stone):
         i, j = random.randint(0, self.board.BOARD_SIZE), random.randint(0, self.board.BOARD_SIZE)
 
-        while not self.is_valid_move((i, j)):
+        while not self.is_valid_move((i, j)) or self.__check_if_move_forms_two_open_rows_of_three_stones((i, j)) or \
+                self.__check_if_move_forms_two_rows_of_four_stones((i, j)):
             i, j = random.randint(0, self.board.BOARD_SIZE), random.randint(0, self.board.BOARD_SIZE)
 
         self.__put_stone((i, j), stone)
@@ -211,7 +269,8 @@ class Game:
 
     def player_turn(self, position):
         if self.current_turn == self.player_stone:
-            if self.is_valid_move(position):
+            if self.is_valid_move(position) and not self.__check_if_move_forms_two_open_rows_of_three_stones(
+                    position) and not self.__check_if_move_forms_two_rows_of_four_stones(position):
                 row, col = position
                 self.board.last_position = [row, col]
                 self.board.grid[row][col] = self.player_stone
