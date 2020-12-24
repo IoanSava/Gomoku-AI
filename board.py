@@ -8,9 +8,9 @@ DOT = 4
 # rgb colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (133, 42, 44)
-TILE_COLOR = (208, 176, 144)
-GREEN = (26, 81, 79)
+RED = (170, 2, 2)
+TILE_COLOR = (250, 217, 179)
+GREEN = (2, 123, 2)
 
 
 def get_game_info(info):
@@ -53,6 +53,7 @@ class Board:
     def on_render(self, info):
         self.render_stone()
         self.render_last_position()
+        self.render_new_position()
         self.render_game_info(info)
         self.render_button(info['playing'])
         self.render_stones_in_order_to_choose_color(info)
@@ -106,7 +107,7 @@ class Board:
         pygame.draw.rect(self._display_surf, color,
                          (self._display_surf.get_width() // 2 - 50, self._display_surf.get_height() - 110, 100, 30))
 
-        info_font = pygame.font.SysFont('Helvetica', 15)
+        info_font = pygame.font.SysFont('Comicsansms', 15)
         text = info_font.render(info, True, WHITE)
         text_rect = text.get_rect()
         text_rect.centerx = self._display_surf.get_width() // 2
@@ -115,7 +116,7 @@ class Board:
 
     def render_game_info(self, info_dict):
         info = get_game_info(info_dict)
-        info_font = pygame.font.SysFont('Helvetica', 25)
+        info_font = pygame.font.SysFont('Comicsansms', 25)
         text = info_font.render(info, True, BLACK)
         text_rect = text.get_rect()
         text_rect.centerx = self._display_surf.get_rect().centerx
@@ -139,6 +140,41 @@ class Board:
                               (MARGIN + WIDTH) * self.last_position[0] + self.OFFSET_HEIGHT - (MARGIN + WIDTH) // 2,
                               (MARGIN + WIDTH),
                               (MARGIN + WIDTH)), 1)
+
+    def render_new_position(self):
+        if self.last_position[0] >= 0 and self.last_position[1] >= 0:
+            pygame.draw.rect(self._display_surf, RED,
+                             (
+                                 (MARGIN + WIDTH) * (self.last_position[1] - 1) + self.OFFSET_WIDTH - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH) * (self.last_position[0] - 1) + self.OFFSET_HEIGHT - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH - 10),
+                                 (MARGIN + WIDTH - 10)), 1)
+            pygame.draw.rect(self._display_surf, RED,
+                             (
+                                 (MARGIN + WIDTH) * (self.last_position[1] - 1) + self.OFFSET_WIDTH - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH) * (self.last_position[0] + 1) + self.OFFSET_HEIGHT - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH - 10),
+                                 (MARGIN + WIDTH - 10)), 1)
+            pygame.draw.rect(self._display_surf, RED,
+                             (
+                                 (MARGIN + WIDTH) * (self.last_position[1] + 1) + self.OFFSET_WIDTH - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH) * (self.last_position[0] - 1) + self.OFFSET_HEIGHT - (
+                                         MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH - 10),
+                                 (MARGIN + WIDTH - 10)), 1)
+            pygame.draw.rect(self._display_surf, RED,
+                             (
+                                 (MARGIN + WIDTH) * (self.last_position[1] + 1) + self.OFFSET_WIDTH - (
+                                             MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH) * (self.last_position[0] + 1) + self.OFFSET_HEIGHT - (
+                                             MARGIN + WIDTH) // 4,
+                                 (MARGIN + WIDTH - 10),
+                                 (MARGIN + WIDTH - 10)), 1)
 
     def mouse_in_button(self, pos):
         return self._display_surf.get_width() // 2 - 50 <= pos[0] <= self._display_surf.get_width() // 2 + 50 and \
