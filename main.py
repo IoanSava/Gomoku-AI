@@ -14,11 +14,11 @@ if __name__ == "__main__":
     pygame.display.set_caption('Gomoku')
 
     screen = pygame.display.set_mode(RESOLUTION, pygame.HWSURFACE | pygame.DOUBLEBUF)
-    board = Board(screen, DEFAULT_BOARD_SIZE)
-    game = Game(board)
 
     manager = pygame_gui.UIManager((screen.get_width(), screen.get_height()))
     game_gui = Menu(screen, manager, RESOLUTION)
+    board = Board(screen, DEFAULT_BOARD_SIZE)
+    game = Game(board, game_gui.computer_selected_option)
     running = True
     clock = pygame.time.Clock()
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         game_gui.confirm_changes()
                         game_gui.close_options_panel()
                         board = Board(screen, int(game_gui.board_size_changer_selected_option.split()[0]))
-                        game = Game(board)
+                        game = Game(board, game_gui.computer_selected_option)
                     if event.ui_element == game_gui.cancel_changes_button:
                         game_gui.cancel_changes()
                         game_gui.close_options_panel()
