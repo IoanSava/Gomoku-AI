@@ -18,7 +18,7 @@ if __name__ == "__main__":
     manager = pygame_gui.UIManager((screen.get_width(), screen.get_height()))
     game_gui = Menu(screen, manager, RESOLUTION)
     board = Board(screen, DEFAULT_BOARD_SIZE)
-    game = Game(board, game_gui.computer_selected_option)
+    game = Game(board, game_gui.computer_selected_option, game_gui.hints_enabled)
     running = True
     clock = pygame.time.Clock()
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         game_gui.confirm_changes()
                         game_gui.close_options_panel()
                         board = Board(screen, int(game_gui.board_size_changer_selected_option.split()[0]))
-                        game = Game(board, game_gui.computer_selected_option)
+                        game = Game(board, game_gui.computer_selected_option, game_gui.hints_enabled)
                     if event.ui_element == game_gui.cancel_changes_button:
                         game_gui.cancel_changes()
                         game_gui.close_options_panel()
@@ -80,7 +80,8 @@ if __name__ == "__main__":
         manager.update(time_delta)
         game.board.on_render(
             {'playing': game.playing, 'winner': game.winner, 'stone': game.player_stone, 'turn': game.turn,
-             'is_player_turn': game.is_player_turn, 'total_stones': game.total_stones})
+             'is_player_turn': game.is_player_turn, 'total_stones': game.total_stones, 'moves': game.get_hints()})
+
         manager.draw_ui(screen)
         pygame.display.update()
 

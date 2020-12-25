@@ -55,13 +55,9 @@ class Menu:
                                                                    text='\u2713', manager=self.manager,
                                                                    container=self.options_panel)
 
-        # '\u2714'
-
         self.cancel_changes_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(445, 195, 40, 40),
                                                                   text='X', manager=self.manager,
                                                                   container=self.options_panel)
-
-        # '\u2718'
 
         self.computer_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(55, 50, 80, 20), text='Computer',
                                                           manager=self.manager, container=self.options_panel)

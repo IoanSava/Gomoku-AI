@@ -53,7 +53,7 @@ class Board:
     def on_render(self, info):
         self.render_stone()
         self.render_last_position()
-        self.render_new_position()
+        self.render_hints(info['moves'])
         self.render_game_info(info)
         self.render_button(info['playing'])
         self.render_stones_in_order_to_choose_color(info)
@@ -141,40 +141,15 @@ class Board:
                               (MARGIN + WIDTH),
                               (MARGIN + WIDTH)), 1)
 
-    def render_new_position(self):
-        if self.last_position[0] >= 0 and self.last_position[1] >= 0:
-            pygame.draw.rect(self._display_surf, RED,
-                             (
-                                 (MARGIN + WIDTH) * (self.last_position[1] - 1) + self.OFFSET_WIDTH - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH) * (self.last_position[0] - 1) + self.OFFSET_HEIGHT - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH - 10),
-                                 (MARGIN + WIDTH - 10)), 1)
-            pygame.draw.rect(self._display_surf, RED,
-                             (
-                                 (MARGIN + WIDTH) * (self.last_position[1] - 1) + self.OFFSET_WIDTH - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH) * (self.last_position[0] + 1) + self.OFFSET_HEIGHT - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH - 10),
-                                 (MARGIN + WIDTH - 10)), 1)
-            pygame.draw.rect(self._display_surf, RED,
-                             (
-                                 (MARGIN + WIDTH) * (self.last_position[1] + 1) + self.OFFSET_WIDTH - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH) * (self.last_position[0] - 1) + self.OFFSET_HEIGHT - (
-                                         MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH - 10),
-                                 (MARGIN + WIDTH - 10)), 1)
-            pygame.draw.rect(self._display_surf, RED,
-                             (
-                                 (MARGIN + WIDTH) * (self.last_position[1] + 1) + self.OFFSET_WIDTH - (
-                                             MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH) * (self.last_position[0] + 1) + self.OFFSET_HEIGHT - (
-                                             MARGIN + WIDTH) // 4,
-                                 (MARGIN + WIDTH - 10),
-                                 (MARGIN + WIDTH - 10)), 1)
+    def render_hints(self, moves):
+        if self.last_position[0] >= 0 and self.last_position[1] >= 0 and moves:
+            for move in moves:
+                if move[0] >= 0 and move[1] >= 0:
+                    pygame.draw.rect(self._display_surf, RED,
+                                     ((MARGIN + WIDTH) * move[1] + self.OFFSET_WIDTH - (MARGIN + WIDTH) // 4,
+                                      (MARGIN + WIDTH) * move[0] + self.OFFSET_HEIGHT - (MARGIN + WIDTH) // 4,
+                                      (MARGIN + WIDTH - 10),
+                                      (MARGIN + WIDTH - 10)), 1)
 
     def mouse_in_button(self, pos):
         return self._display_surf.get_width() // 2 - 50 <= pos[0] <= self._display_surf.get_width() // 2 + 50 and \
