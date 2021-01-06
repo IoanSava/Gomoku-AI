@@ -10,7 +10,7 @@ MEDIUM_DIFFICULTY = 'AI Medium'
 
 
 class Game:
-    def __init__(self, board, difficulty):
+    def __init__(self, board, difficulty, hints):
         self.board = board
         self.difficulty = difficulty
         self.total_stones = 0
@@ -21,6 +21,7 @@ class Game:
         self.turn = 1
         self.player_stone, self.computer_stone = '', ''
         self.winner = ''
+        self.hints = hints
 
     def __is_position_outside_of_the_board(self, position):
         row, col = position
@@ -143,7 +144,6 @@ class Game:
                             not self.__check_if_move_forms_two_rows_of_four_stones((i, j), stone):
                         moves.append((i, j))
 
-        random.shuffle(moves)
         return moves
 
     def __heuristic(self, stone):
@@ -386,6 +386,24 @@ class Game:
                     else:
                         self.switch_turn()
                         self.computer_turn()
+
+    def get_hints(self):
+        if self.hints and self.turn > 3:
+            move_score_dict = {}
+            moves = self.__generate_possible_moves(self.player_stone)
+            for move in moves:
+                self.board.grid[move[0]][move[1]] = self.player_stone
+                score = self.__heuristic(self.player_stone)
+                self.board.grid[move[0]][move[1]] = '-'
+                move_score_dict[move] = score
+            sorted_dict = dict(
+                sorted(move_score_dict.items(), key=lambda item: (item[1], item[0][0], item[0][1]), reverse=True))
+            first_5_items_dict = []
+            for i in range(min(5, len(sorted_dict))):
+                first_5_items_dict.append(list(sorted_dict.items())[i])
+            return [value[0] for value in first_5_items_dict]
+        else:
+            return []
 
     def reset(self):
         self.board.reset()
