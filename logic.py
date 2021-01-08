@@ -149,7 +149,7 @@ class Game:
     def __heuristic(self, stone):
         score = 0
         if self.__check_winner(stone):
-            score += 100_000
+            score += 150_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, stone):
             score += 15_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, stone, False):
@@ -217,19 +217,60 @@ class Game:
         move, _ = self.__max_value(-INF, INF, 0, max_depth)
         return move
 
+    def __bfs(self, stone):
+        moves = []
+        for i in range(0, self.board.BOARD_SIZE + 1):
+            for j in range(0, self.board.BOARD_SIZE + 1):
+                if self.board.grid[i][j] == stone:
+                    for direction in DIRECTIONS:
+                        new_i, new_j = i + direction[0], j + direction[1]
+                        if self.is_valid_move((new_i, new_j)) and \
+                                not self.__check_if_move_forms_two_open_rows_of_three_stones((new_i, new_j), stone) and \
+                                not self.__check_if_move_forms_two_rows_of_four_stones((new_i, new_j), stone):
+                            moves.append((new_i, new_j))
+
+                        new_i, new_j = i - direction[0], j - direction[1]
+                        if self.is_valid_move((new_i, new_j)) and \
+                                not self.__check_if_move_forms_two_open_rows_of_three_stones((new_i, new_j), stone) and \
+                                not self.__check_if_move_forms_two_rows_of_four_stones((new_i, new_j), stone):
+                            moves.append((new_i, new_j))
+
+        return moves
+
+    def __best_bfs_move(self, stone):
+        moves = self.__bfs(stone)
+        if len(moves) == 0:
+            return random.randint(0, self.board.BOARD_SIZE), random.randint(0, self.board.BOARD_SIZE)
+
+        best_score = -INF
+        best_move = ()
+        for move in moves:
+            self.board.grid[move[0]][move[1]] = stone
+            score = self.__heuristic(stone)
+            if score > best_score:
+                best_score = score
+                best_move = move
+            self.board.grid[move[0]][move[1]] = '-'
+
+        return best_move
+
     def __computer_move(self, stone):
-        if self.difficulty == EASY_DIFFICULTY:
+        if self.difficulty == EASY_DIFFICULTY or self.turn < 4:
             i, j = random.randint(0, self.board.BOARD_SIZE), random.randint(0, self.board.BOARD_SIZE)
+        elif self.difficulty == MEDIUM_DIFFICULTY:
+            i, j = self.__best_bfs_move(stone)
         else:
             i, j = self.__minimax_alfa_beta(1)
 
         while not self.is_valid_move((i, j)) or \
                 self.__check_if_move_forms_two_open_rows_of_three_stones((i, j), self.computer_stone) or \
                 self.__check_if_move_forms_two_rows_of_four_stones((i, j), self.computer_stone):
-            if self.difficulty == EASY_DIFFICULTY:
+            if self.difficulty == EASY_DIFFICULTY or self.turn < 4:
                 i, j = random.randint(0, self.board.BOARD_SIZE), random.randint(0, self.board.BOARD_SIZE)
+            elif self.difficulty == MEDIUM_DIFFICULTY:
+                i, j = self.__best_bfs_move(stone)
             else:
-                i, j = self.__minimax_alfa_beta(3)
+                i, j = self.__minimax_alfa_beta(1)
 
         self.__put_stone((i, j), stone)
 
