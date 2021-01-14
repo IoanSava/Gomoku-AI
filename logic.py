@@ -10,7 +10,7 @@ MEDIUM_DIFFICULTY = 'AI Medium'
 
 
 class Game:
-    def __init__(self, board, difficulty, hints):
+    def __init__(self, board, difficulty, hints, heuristic_params):
         self.board = board
         self.difficulty = difficulty
         self.total_stones = 0
@@ -22,6 +22,7 @@ class Game:
         self.player_stone, self.computer_stone = '', ''
         self.winner = ''
         self.hints = hints
+        self.heuristic_params = list(heuristic_params)
 
     def __is_position_outside_of_the_board(self, position):
         row, col = position
@@ -149,21 +150,21 @@ class Game:
     def __heuristic(self, stone):
         score = 0
         if self.__check_winner(stone):
-            score += 150_000
+            score += self.heuristic_params[0]  # starting value: 150_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, stone):
-            score += 15_000
+            score += self.heuristic_params[1]  # starting value: 15_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, stone, False):
-            score += 10_000
+            score += self.heuristic_params[2]  # starting value: 10_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, 'B' if stone != 'B' else 'W'):
-            score -= 100_000
+            score -= self.heuristic_params[3]  # starting value: 100_000
         if self.__check_if_exists_one_open_row_with_n_stones(4, 'B' if stone != 'B' else 'W', False):
-            score -= 50_000
+            score -= self.heuristic_params[4]  # starting value: 50_000
         if self.__check_if_exists_one_open_row_with_n_stones(3, stone):
-            score += 10_000
+            score += self.heuristic_params[5]  # starting value: 10_000
         if self.__check_if_exists_one_open_row_with_n_stones(3, 'B' if stone != 'B' else 'W'):
-            score -= 12_000
+            score -= self.heuristic_params[6]  # starting value: 12_000
         if self.__check_if_exists_one_open_row_with_n_stones(2, stone):
-            score += 1_000
+            score += self.heuristic_params[7]  # starting value: 1_000
 
         return score
 
@@ -221,7 +222,7 @@ class Game:
         moves = []
         for i in range(0, self.board.BOARD_SIZE + 1):
             for j in range(0, self.board.BOARD_SIZE + 1):
-                if self.board.grid[i][j] == stone:
+                if self.board.grid[i][j] != '-':
                     for direction in DIRECTIONS:
                         new_i, new_j = i + direction[0], j + direction[1]
                         if self.is_valid_move((new_i, new_j)) and \
