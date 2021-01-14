@@ -9,7 +9,7 @@ DOT = 4
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (170, 2, 2)
-TILE_COLOR = (250, 217, 179)
+TILE_COLOR = (100, 149, 237)
 GREEN = (2, 123, 2)
 
 
